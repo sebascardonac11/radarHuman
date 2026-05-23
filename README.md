@@ -53,8 +53,8 @@ UART0 (GPIO1 TX / GPIO3 RX) se usa para los logs de debug a 115 200 baud, accesi
 
 | Constante | Valor | Efecto |
 |---|---|---|
-| `CONFIRM_MS` | 500 ms | Presencia continua mínima para activar el relé |
-| `HOLD_MS` | 10 000 ms | Ausencia sostenida para desactivar el relé |
+| `CONFIRM_MS` | 2 000 ms | Presencia continua mínima para activar el relé |
+| `HOLD_MS` | 2 000 ms | Ausencia sostenida para desactivar el relé |
 
 ---
 

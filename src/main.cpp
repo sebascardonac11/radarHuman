@@ -16,8 +16,8 @@
 
 // ── Timing ────────────────────────────────────────────────────────────────────
 #define RADAR_BAUD   115200   // baud rate operativo tras configureSensor()
-#define CONFIRM_MS    500UL   // presencia continua antes de activar el relé
-#define HOLD_MS     10000UL   // ausencia sostenida antes de apagar el relé
+#define CONFIRM_MS   2000UL   // presencia continua antes de activar el relé
+#define HOLD_MS      2000UL   // ausencia sostenida antes de apagar el relé
 
 SoftwareSerial radarSerial(RADAR_RX_PIN, RADAR_TX_PIN);
 
