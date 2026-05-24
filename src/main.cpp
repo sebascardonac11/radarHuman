@@ -129,19 +129,18 @@ void loop() {
         pState = SYNC;
         hdrIdx = 0;
         rxCount = 0;
-        Serial.println("[PARSER] timeout — reset");
+        // Serial.println("[PARSER] timeout — reset");
     }
 
-    // Print state only when it changes to avoid flooding Serial
     if (pendingState >= 0 && (uint8_t)pendingState != lastPrintedState) {
         lastPrintedState = (uint8_t)pendingState;
-        switch (pendingState) {
-            case 0x00: Serial.println("[STATE] sin objetivo");          break;
-            case 0x01: Serial.println("[STATE] movimiento");            break;
-            case 0x02: Serial.println("[STATE] estatico");              break;
-            case 0x03: Serial.println("[STATE] movimiento + estatico"); break;
-            default:   Serial.print("[STATE] 0x"); Serial.println(pendingState, HEX); break;
-        }
+        // switch (pendingState) {
+        //     case 0x00: Serial.println("[STATE] sin objetivo");          break;
+        //     case 0x01: Serial.println("[STATE] movimiento");            break;
+        //     case 0x02: Serial.println("[STATE] estatico");              break;
+        //     case 0x03: Serial.println("[STATE] movimiento + estatico"); break;
+        //     default:   Serial.print("[STATE] 0x"); Serial.println(pendingState, HEX); break;
+        // }
     }
     pendingState = -1;
 
@@ -153,12 +152,12 @@ void loop() {
             if (relayOn) {
                 relayOn = false;
                 digitalWrite(RELAY_PIN, LOW);
-                Serial.println("[RELAY] OFF");
+                // Serial.println("[RELAY] OFF");
             }
         } else if (!relayOn && now - firstDetectedMs >= CONFIRM_MS) {
             relayOn = true;
             digitalWrite(RELAY_PIN, HIGH);
-            Serial.println("[RELAY] ON");
+            // Serial.println("[RELAY] ON");
         }
     }
 }
