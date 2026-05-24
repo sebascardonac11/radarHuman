@@ -27,17 +27,20 @@ static const uint8_t FRAME_END[4] = {0xF8, 0xF7, 0xF6, 0xF5};
 
 // ── Parser state machine ──────────────────────────────────────────────────────
 enum ParserState : uint8_t { SYNC, RD_LEN, RD_DATA, RD_END };
-static ParserState pState  = SYNC;
-static uint8_t     hdrIdx  = 0;
-static uint8_t     frameBuf[48];
-static uint16_t    dataLen = 0;
-static uint16_t    rxCount = 0;
+static ParserState   pState      = SYNC;
+static uint8_t       hdrIdx      = 0;
+static uint8_t       frameBuf[48];
+static uint16_t      dataLen     = 0;
+static uint16_t      rxCount     = 0;
+static unsigned long lastByteMs  = 0;   // for parser stuck-detection
+#define PARSER_TIMEOUT_MS  150UL        // reset parser if no byte arrives mid-frame
 
 // ── Presencia / relé ──────────────────────────────────────────────────────────
-static unsigned long firstDetectedMs = 0;
-static unsigned long lastDetectedMs  = 0;
-static bool          relayOn         = false;
-static int8_t        pendingState    = -1;
+static unsigned long firstDetectedMs  = 0;
+static unsigned long lastDetectedMs   = 0;
+static bool          relayOn          = false;
+static int8_t        pendingState     = -1;
+static uint8_t       lastPrintedState = 0xFF;  // throttle Serial: only print on change
 
 // frameBuf: [0-3]=HDR [4-5]=length [6]=type [7]=head [8]=targetState
 void onFrame() {
@@ -54,6 +57,7 @@ void onFrame() {
 }
 
 void parseByte(uint8_t b) {
+    lastByteMs = millis();
     switch (pState) {
     case SYNC:
         if (b == FRAME_HDR[hdrIdx]) {
@@ -115,9 +119,22 @@ void setup() {
 }
 
 void loop() {
-    while (radarSerial.available()) parseByte(radarSerial.read());
+    while (radarSerial.available()) {
+        parseByte(radarSerial.read());
+        yield();   // feed ESP8266 watchdog and background tasks while draining buffer
+    }
 
-    if (pendingState >= 0) {
+    // Reset parser if it got stuck mid-frame (byte drop from SoftwareSerial)
+    if (pState != SYNC && millis() - lastByteMs > PARSER_TIMEOUT_MS) {
+        pState = SYNC;
+        hdrIdx = 0;
+        rxCount = 0;
+        Serial.println("[PARSER] timeout — reset");
+    }
+
+    // Print state only when it changes to avoid flooding Serial
+    if (pendingState >= 0 && (uint8_t)pendingState != lastPrintedState) {
+        lastPrintedState = (uint8_t)pendingState;
         switch (pendingState) {
             case 0x00: Serial.println("[STATE] sin objetivo");          break;
             case 0x01: Serial.println("[STATE] movimiento");            break;
@@ -125,8 +142,8 @@ void loop() {
             case 0x03: Serial.println("[STATE] movimiento + estatico"); break;
             default:   Serial.print("[STATE] 0x"); Serial.println(pendingState, HEX); break;
         }
-        pendingState = -1;
     }
+    pendingState = -1;
 
     unsigned long now = millis();
 
