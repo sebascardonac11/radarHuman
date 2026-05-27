@@ -134,13 +134,13 @@ void loop() {
 
     if (pendingState >= 0 && (uint8_t)pendingState != lastPrintedState) {
         lastPrintedState = (uint8_t)pendingState;
-        // switch (pendingState) {
-        //     case 0x00: Serial.println("[STATE] sin objetivo");          break;
-        //     case 0x01: Serial.println("[STATE] movimiento");            break;
-        //     case 0x02: Serial.println("[STATE] estatico");              break;
-        //     case 0x03: Serial.println("[STATE] movimiento + estatico"); break;
-        //     default:   Serial.print("[STATE] 0x"); Serial.println(pendingState, HEX); break;
-        // }
+       /*  switch (pendingState) {
+             case 0x00: Serial.println("[STATE] sin objetivo");          break;
+            case 0x01: Serial.println("[STATE] movimiento");            break;
+             case 0x02: Serial.println("[STATE] estatico");              break;
+             case 0x03: Serial.println("[STATE] movimiento + estatico"); break;
+             default:   Serial.print("[STATE] 0x"); Serial.println(pendingState, HEX); break;
+         }*/
     }
     pendingState = -1;
 
